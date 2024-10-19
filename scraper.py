@@ -14,7 +14,6 @@ def download_articles(type, folder_name):
         pdf = file_name + ".pdf"
         
         download_file(href, folder_name, pdf)
-        print(pdf)
 
 driver = webdriver.Chrome()
 
