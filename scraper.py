@@ -10,9 +10,12 @@ def download_articles(type, folder_name):
     for a in articles:
         href = a.get_attribute('href')  
         article_text = a.text
-        file_name = article_text.replace(" ", "_")
+        file_name = article_text.replace(" ", "_").replace("/", "-")
+
+        if len(file_name) > 251:
+            file_name = file_name[:251]
+
         pdf = file_name + ".pdf"
-        
         download_file(href, folder_name, pdf)
 
 driver = webdriver.Chrome()
@@ -52,12 +55,12 @@ def main(id, folder_name):
             print(f"\nAn error occurred: {str(e)}")
             break 
 
-ids = ["452", "451", "450", "449"]
+ids = ["452", "451", "450", "449"] # to run 450 and 449
 for id in ids:
     judgements = driver.find_element(By.ID, "dnn_leftPane8")
     judgement_type = judgements.find_element(By.CSS_SELECTOR, f"div.DnnModule.DnnModule-EasyDNNnewsWidgets.DnnModule-{id}")
     h2 = judgement_type.find_element(By.CSS_SELECTOR, "h2")
-    folder_name = f"Judgements/{h2.text}"
+    folder_name = f"/Volumes/Untitled/Judgements/{h2.text}"
     create_directory(folder_name)
 
     print(f"\n---- Downloading files with id:{id} into {folder_name} ----")
