@@ -5,18 +5,19 @@ from selenium.webdriver.support import expected_conditions as EC
 from selenium.common.exceptions import TimeoutException, NoSuchElementException
 from utils import *
 
+FOLDER_PREFIX = "/Volumes/Untitled"
+
 def download_articles(type, folder_name):
     articles = type.find_elements(By.CSS_SELECTOR, "div.edn__articleListWrapper article h4 a")
     for a in articles:
         href = a.get_attribute('href')  
         article_text = a.text
-        file_name = article_text.replace(" ", "_").replace("/", "-")
 
-        if len(file_name) > 251:
-            file_name = file_name[:251]
+        pdf = sanitize_filename(article_text) 
+        file_path = os.path.join(FOLDER_PREFIX, folder_name, pdf)
 
-        pdf = file_name + ".pdf"
-        download_file(href, folder_name, pdf)
+        if not os.path.exists(file_path):
+            download_file(href, file_path)
 
 driver = webdriver.Chrome()
 
@@ -55,12 +56,12 @@ def main(id, folder_name):
             print(f"\nAn error occurred: {str(e)}")
             break 
 
-ids = ["452", "451", "450", "449"] # to run 450 and 449
+ids = ["452", "451", "450", "449"]
 for id in ids:
     judgements = driver.find_element(By.ID, "dnn_leftPane8")
     judgement_type = judgements.find_element(By.CSS_SELECTOR, f"div.DnnModule.DnnModule-EasyDNNnewsWidgets.DnnModule-{id}")
     h2 = judgement_type.find_element(By.CSS_SELECTOR, "h2")
-    folder_name = f"/Volumes/Untitled/Judgements/{h2.text}"
+    folder_name = f"{FOLDER_PREFIX}/Judgements/{h2.text}"
     create_directory(folder_name)
 
     print(f"\n---- Downloading files with id:{id} into {folder_name} ----")
