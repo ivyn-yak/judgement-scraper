@@ -111,11 +111,12 @@ def download_and_attach_pdfs(pdf_urls, msg):
         except Exception as e:
             print(f"Error downloading or attaching {filename}: {e}")
 
-def send_email_with_multiple_pdfs(pdf_urls, sender_email, sender_password, recipient_email):
+def send_email_with_multiple_pdfs(pdf_urls, sender_email, sender_password, recipient_emails):
     # Create email
     subject = "Biweekly Newsletter - PDFs Attached"
     msg = MIMEMultipart()
     msg['From'] = sender_email
+    msg['To'] = ", ".join(recipient_emails)
     msg['Subject'] = subject
 
     # Add email body
@@ -130,7 +131,7 @@ def send_email_with_multiple_pdfs(pdf_urls, sender_email, sender_password, recip
         with smtplib.SMTP('smtp.gmail.com', 587) as server:
             server.starttls()
             server.login(sender_email, sender_password)
-            server.sendmail(sender_email, recipient_email, msg.as_string())
+            server.sendmail(sender_email, recipient_emails, msg.as_string())
             print("Email sent successfully!")
     except Exception as e:
         print(f"Error sending email: {e}")
@@ -153,7 +154,7 @@ def main():
         pdf_urls=new_files,
         sender_email=os.getenv('SENDER_EMAIL'),
         sender_password=os.getenv('SENDER_PASSWORD'),
-        recipient_email=[os.getenv('RECIPIENT_EMAIL'), os.getenv('PERSONAL_EMAIL')]
+        recipient_emails=[os.getenv('RECIPIENT_EMAIL'), os.getenv('PERSONAL_EMAIL')]
     )
 
 if __name__ == "__main__":
