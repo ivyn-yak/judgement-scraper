@@ -116,11 +116,10 @@ def send_email_with_multiple_pdfs(pdf_urls, sender_email, sender_password, recip
     subject = "Biweekly Newsletter - PDFs Attached"
     msg = MIMEMultipart()
     msg['From'] = sender_email
-    msg['To'] = recipient_email
     msg['Subject'] = subject
 
     # Add email body
-    body = "Hello,\n\nPlease find attached the PDFs for this biweekly update.\n\nBest regards,\nYour Automation Script"
+    body = "Hello,\n\nPlease find attached the PDFs for this biweekly update. Have a good day!\n"
     msg.attach(MIMEText(body, 'plain'))
 
     # Attach all PDFs
@@ -154,7 +153,7 @@ def main():
         pdf_urls=new_files,
         sender_email=os.getenv('SENDER_EMAIL'),
         sender_password=os.getenv('SENDER_PASSWORD'),
-        recipient_email=os.getenv('RECIPIENT_EMAIL')
+        recipient_email=[os.getenv('RECIPIENT_EMAIL'), os.getenv('PERSONAL_EMAIL')]
     )
 
 if __name__ == "__main__":
