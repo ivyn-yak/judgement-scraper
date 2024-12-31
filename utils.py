@@ -2,7 +2,19 @@ from pathlib import Path
 import os
 import requests
 import re
+from datetime import datetime
 
+class CustomError(Exception):
+    """Custom exception when the articles are more than a month old."""
+    def __init__(self, message):
+        super().__init__(message)
+
+def get_date(text):
+    index = text.find("Decision Date:")
+    str_date = text[index+15:]
+    date = datetime.strptime(str_date, "%d %b %Y").date()
+
+    return date
 def sanitize_filename(filename):
     filename = re.sub(r'[<>:"/\\|?*]', '_', filename)
     filename = filename.strip().strip('.')
