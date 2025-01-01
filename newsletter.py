@@ -10,6 +10,7 @@ from email.mime.multipart import MIMEMultipart
 from email.mime.base import MIMEBase
 from email.mime.text import MIMEText
 from email import encoders
+from email.header import Header
 from io import BytesIO
 from dotenv import load_dotenv
 import os
@@ -92,25 +93,6 @@ def run_scraper(id, new_files):
             print(f"\nAn error occurred: {str(e)}")
             break 
 
-def download_and_attach_pdfs(pdf_urls, msg):
-    for pdf_info in pdf_urls:
-        try:
-            # Download PDF into memory
-            url, filename = pdf_info
-            response = requests.get(url, stream=True)
-            response.raise_for_status()
-            pdf_data = BytesIO(response.content)
-
-            # Attach the PDF
-            part = MIMEBase('application', 'octet-stream')
-            part.set_payload(pdf_data.read())
-            encoders.encode_base64(part)
-            part.add_header('Content-Disposition', f'attachment; filename={filename}')
-            msg.attach(part)
-            print(f"Attached: {filename}")
-        except Exception as e:
-            print(f"Error downloading or attaching {filename}: {e}")
-
 def send_email_with_multiple_pdfs(pdf_urls, sender_email, sender_password, recipient_emails):
     # Create email
     subject = "Biweekly Newsletter - PDFs Attached"
@@ -124,7 +106,25 @@ def send_email_with_multiple_pdfs(pdf_urls, sender_email, sender_password, recip
     msg.attach(MIMEText(body, 'plain'))
 
     # Attach all PDFs
-    download_and_attach_pdfs(pdf_urls, msg)
+    for pdf_info in pdf_urls:
+        try:
+            # Download PDF into memory
+            url, filename = pdf_info
+            response = requests.get(url, stream=True)
+            response.raise_for_status()
+            pdf_data = BytesIO(response.content)
+
+            # Attach the PDF
+            part = MIMEBase('application', 'pdf')
+            part.set_payload(pdf_data.read())
+            encoders.encode_base64(part)
+            encoded_filename = Header(filename, charset='utf-8').encode()
+            part.add_header('Content-Disposition', f'attachment; filename="{encoded_filename}"')
+            msg.attach(part)
+            print(f"Attached: {filename}")
+
+        except Exception as e:
+            print(f"Error downloading or attaching {filename}: {e}")
 
     # Send email
     try:
